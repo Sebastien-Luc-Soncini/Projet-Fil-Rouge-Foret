@@ -43,7 +43,7 @@ def calculer_residus_agriculture_foret(df):
     x = donnees_residus["Agricultural Land (%)"]
     y = donnees_residus["Forested Area (%)"]
 
-    pente, ordonnee_origine = __import__("numpy").polyfit(x, y, 1)
+    pente, ordonnee_origine = np.polyfit(x, y, 1)
 
     donnees_residus["Foret_predite"] = (
         pente * x + ordonnee_origine

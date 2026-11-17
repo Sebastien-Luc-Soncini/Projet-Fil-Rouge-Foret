@@ -1,16 +1,29 @@
 # script testé et validé !
 
+
 import sqlite3
 import pandas as pd
+from pathlib import Path
 
 
-# --------------------------------------------------
+# ==================================================
+# CHEMIN DE LA BASE DE DONNEES
+# ==================================================
+
+# On remonte de Controls vers le dossier principal
+dossier_projet = Path(__file__).resolve().parent.parent
+
+# La base SQLite sera stockée dans Data
+chemin_db = dossier_projet / "Data" / "foret.db"
+
+
+# ==================================================
 # 1. CREATION DE LA BASE DE DONNEES
-# --------------------------------------------------
+# ==================================================
 
 def create_database(df):
 
-    connexion = sqlite3.connect("foret.db")
+    connexion = sqlite3.connect(chemin_db)
 
     # Transfert du DataFrame Pandas vers une table SQL
     df.to_sql("forest", connexion, if_exists="replace", index=False)
@@ -18,9 +31,9 @@ def create_database(df):
     return connexion
 
 
-# --------------------------------------------------
-# 2. REQUETES SQL
-# --------------------------------------------------
+# ==================================================
+# 2. EXECUTION DES REQUETES SQL
+# ==================================================
 
 def execute_query(connexion, requete):
 
@@ -30,9 +43,9 @@ def execute_query(connexion, requete):
     return resultat
 
 
-# --------------------------------------------------
+# ==================================================
 # 3. REQUETE 1 : LES 10 PAYS LES PLUS FORESTIERS
-# --------------------------------------------------
+# ==================================================
 
 def get_top_forest_countries(connexion):
 
@@ -46,9 +59,9 @@ def get_top_forest_countries(connexion):
     return execute_query(connexion, requete)
 
 
-# --------------------------------------------------
+# ==================================================
 # 4. REQUETE 2 : PAYS AVEC UNE FORTE DENSITE
-# --------------------------------------------------
+# ==================================================
 
 def get_high_density_countries(connexion):
 
@@ -62,9 +75,9 @@ def get_high_density_countries(connexion):
     return execute_query(connexion, requete)
 
 
-# --------------------------------------------------
+# ==================================================
 # 5. REQUETE 3 : MOYENNE DE SURFACE FORESTIERE
-# --------------------------------------------------
+# ==================================================
 
 def get_average_forest_area(connexion):
 
@@ -76,9 +89,9 @@ def get_average_forest_area(connexion):
     return execute_query(connexion, requete)
 
 
-# --------------------------------------------------
+# ==================================================
 # 6. REQUETE 4 : SURFACE FORESTIERE PAR CATEGORIE
-# --------------------------------------------------
+# ==================================================
 
 def get_forest_by_agriculture(connexion):
 
@@ -91,9 +104,13 @@ def get_forest_by_agriculture(connexion):
             WHEN "Agricultural Land (%)" <= 80 THEN '60-80'
             ELSE '>80'
         END AS categorie_agriculture,
+
         COUNT(*) AS nombre_pays,
+
         ROUND(AVG("Forested Area (%)"), 2) AS moyenne_foret
+
     FROM forest
+
     GROUP BY categorie_agriculture
     ORDER BY categorie_agriculture;
     """

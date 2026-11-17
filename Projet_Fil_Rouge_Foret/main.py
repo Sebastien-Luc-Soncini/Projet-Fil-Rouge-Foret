@@ -3,34 +3,38 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Import du module de nettoyage
-from cleaning import clean_data
+# ==================================================
+# IMPORT DES MODULES
+# ==================================================
 
-# Import des analyses principales
-from analysis import (
+# Module de nettoyage
+from Models.cleaning import clean_data
+
+# Analyses principales
+from Models.analysis import (
     analyse_statistique,
     analyse_correlations,
     analyse_agriculture,
     analyse_densite
 )
 
-# Import des analyses avancées
-from advanced_analysis import (
+# Analyses avancées
+from Models.advanced_analysis import (
     calculer_pib_par_habitant,
     calculer_residus_agriculture_foret,
     calculer_distribution_foret
 )
 
-# Import des visualisations principales
-from visualizations import (
+# Visualisations principales
+from Views.visualizations import (
     plot_top_10_forest,
     plot_agriculture_forest,
     plot_forest_boxplot,
     plot_correlation_matrix
 )
 
-# Import des visualisations avancées
-from advanced_visualizations import (
+# Visualisations avancées
+from Views.advanced_visualizations import (
     plot_density_scatter,
     plot_density_scatter_filtered,
     plot_gdp_forest,
@@ -39,8 +43,8 @@ from advanced_visualizations import (
     plot_world_map
 )
 
-# Import des fonctions SQL
-from sql import (
+# Fonctions SQL
+from Controls.sql import (
     create_database,
     get_top_forest_countries,
     get_high_density_countries,
@@ -49,9 +53,13 @@ from sql import (
 )
 
 
+# ==================================================
+# PROGRAMME PRINCIPAL
+# ==================================================
+
 def main():
 
-    # Chemin du dossier du projet
+    # Chemin du dossier principal du projet
     dossier_projet = Path(__file__).resolve().parent
 
     print("\n====================================")
@@ -65,7 +73,7 @@ def main():
 
     print("1. Chargement des données...")
 
-    chemin_csv = dossier_projet / "foret.csv"
+    chemin_csv = dossier_projet / "Data" / "foret.csv"
 
     df = pd.read_csv(chemin_csv)
 
@@ -91,7 +99,7 @@ def main():
 
     print("\n3. Sauvegarde du CSV nettoyé...")
 
-    chemin_csv_nettoye = dossier_projet / "foret_clean.csv"
+    chemin_csv_nettoye = dossier_projet / "Data" / "foret_clean.csv"
 
     df.to_csv(chemin_csv_nettoye, index=False)
 
@@ -255,9 +263,9 @@ def main():
     print("====================================")
 
 
-# --------------------------------
+# ==================================================
 # EXECUTION DU PROGRAMME
-# --------------------------------
+# ==================================================
 
 if __name__ == "__main__":
     main()

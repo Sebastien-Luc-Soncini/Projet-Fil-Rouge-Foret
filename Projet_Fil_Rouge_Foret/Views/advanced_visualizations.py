@@ -1,9 +1,8 @@
 
 import matplotlib.pyplot as plt
 import plotly.express as px
-import numpy as np
 
-from advanced_analysis import (
+from Models.advanced_analysis import (
     calculer_pib_par_habitant,
     calculer_residus_agriculture_foret,
     calculer_distribution_foret
