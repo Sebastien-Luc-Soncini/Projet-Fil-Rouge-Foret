@@ -223,3 +223,36 @@ def plot_correlation_matrix(df):
     fig.tight_layout()
 
     return fig
+
+# les dix pays avec le moins de forêt
+
+def plot_bottom_10_forest(df):
+
+    bottom_10_foret = df.nsmallest(10, "Forested Area (%)")
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    ax.barh(
+        bottom_10_foret["Country"],
+        bottom_10_foret["Forested Area (%)"],
+        color="sandybrown",
+        edgecolor="darkorange",
+        linewidth=1.2,
+        label="Surface forestière"
+    )
+
+    ax.set_title(
+        "Les 10 pays ayant la plus faible couverture forestière",
+        fontsize=16,
+        fontweight="bold"
+    )
+
+    ax.set_xlabel("Surface forestière (%)", fontsize=12)
+    ax.set_ylabel("Pays", fontsize=12)
+
+    ax.grid(axis="x", linestyle="--", alpha=0.4)
+    ax.legend()
+
+    fig.tight_layout()
+
+    return fig
