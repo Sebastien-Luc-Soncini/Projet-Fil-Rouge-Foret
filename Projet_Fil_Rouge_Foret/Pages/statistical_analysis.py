@@ -25,11 +25,11 @@ st.subheader("Les 10 pays ayant la plus forte couverture forestière")
 st.write(resultats["top_10_foret"])
 
 fig = plot_top_10_forest(df)
-st.pyplot(fig)
+st.plotly_chart(fig, use_container_width=True)
 
 st.subheader("Les 10 pays ayant la plus faible couverture forestière")
 
 st.write(resultats["bottom_10_foret"])
 
 fig = plot_bottom_10_forest(df)
-st.pyplot(fig)
+st.plotly_chart(fig, use_container_width=True)

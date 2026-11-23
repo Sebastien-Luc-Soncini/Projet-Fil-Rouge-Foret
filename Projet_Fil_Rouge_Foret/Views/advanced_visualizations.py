@@ -19,19 +19,22 @@ def plot_density_scatter(df):
         subset=["Density (people/km²)", "Forested Area (%)"]
     )
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    ax.scatter(
-        donnees["Density (people/km²)"],
-        donnees["Forested Area (%)"]
+    fig = px.scatter(
+        donnees,
+        x="Density (people/km²)",
+        y="Forested Area (%)",
+        hover_name="Country",
+        labels={
+            "Density (people/km²)": "Densité (habitants/km²)",
+            "Forested Area (%)": "Surface forestière (%)"
+        },
+        title="Densité de population et couverture forestière",
+        color_discrete_sequence=["#228B22"]
     )
 
-    ax.set_title("Densité de population et couverture forestière")
-    ax.set_xlabel("Densité (habitants/km²)")
-    ax.set_ylabel("Surface forestière (%)")
-    ax.grid(linestyle="--", alpha=0.3)
-
-    fig.tight_layout()
+    fig.update_layout(
+        template="plotly_white"
+    )
 
     return fig
 
@@ -49,23 +52,25 @@ def plot_density_scatter_filtered(df):
         subset=["Density (people/km²)", "Forested Area (%)"]
     )
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    ax.scatter(
-        donnees["Density (people/km²)"],
-        donnees["Forested Area (%)"]
+    fig = px.scatter(
+        donnees,
+        x="Density (people/km²)",
+        y="Forested Area (%)",
+        hover_name="Country",
+        labels={
+            "Density (people/km²)": "Densité (habitants/km²)",
+            "Forested Area (%)": "Surface forestière (%)"
+        },
+        title=(
+            "Densité de population et couverture forestière "
+            "(densité inférieure ou égale à 200)"
+        ),
+        color_discrete_sequence=["#228B22"]
     )
 
-    ax.set_title(
-        "Densité de population et couverture forestière "
-        "(densité inférieure ou égale à 200)"
+    fig.update_layout(
+        template="plotly_white"
     )
-
-    ax.set_xlabel("Densité (habitants/km²)")
-    ax.set_ylabel("Surface forestière (%)")
-    ax.grid(linestyle="--", alpha=0.3)
-
-    fig.tight_layout()
 
     return fig
 
@@ -78,26 +83,24 @@ def plot_gdp_forest(df):
 
     donnees_pib_foret, correlation = calculer_pib_par_habitant(df)
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    ax.scatter(
-        donnees_pib_foret["GDP_per_capita (USD)"],
-        donnees_pib_foret["Forested Area (%)"],
-        color="seagreen",
-        s=60,
-        alpha=0.7,
-        edgecolors="black",
-        linewidths=0.5
+    fig = px.scatter(
+        donnees_pib_foret,
+        x="GDP_per_capita (USD)",
+        y="Forested Area (%)",
+        hover_name="Country",
+        labels={
+            "GDP_per_capita (USD)": "PIB par habitant ($)",
+            "Forested Area (%)": "Surface forestière (%)"
+        },
+        title="PIB par habitant et couverture forestière",
+        color_discrete_sequence=["#228B22"]
     )
 
-    ax.set_title("PIB par habitant et couverture forestière")
-    ax.set_xlabel("PIB par habitant ($)")
-    ax.set_ylabel("Surface forestière (%)")
+    fig.update_xaxes(type="log")
 
-    ax.set_xscale("log")
-
-    ax.grid(linestyle="--", alpha=0.3)
-    fig.tight_layout()
+    fig.update_layout(
+        template="plotly_white"
+    )
 
     return fig
 
@@ -110,32 +113,35 @@ def plot_residuals(df):
 
     _, pays_atypiques = calculer_residus_agriculture_foret(df)
 
-    couleurs = [
-        "forestgreen" if residu > 0 else "firebrick"
+    pays_atypiques["Couleur"] = [
+        "Positif" if residu > 0 else "Négatif"
         for residu in pays_atypiques["Residus"]
     ]
 
-    fig, ax = plt.subplots(figsize=(11, 8))
-
-    ax.barh(
-        pays_atypiques["Country"],
-        pays_atypiques["Residus"],
-        color=couleurs,
-        edgecolor="black",
-        linewidth=0.5
+    fig = px.bar(
+        pays_atypiques,
+        x="Residus",
+        y="Country",
+        orientation="h",
+        color="Couleur",
+        hover_data={"Residus": True, "Couleur": False},
+        labels={
+            "Residus": "Résidu (points de pourcentage)",
+            "Country": "Pays",
+            "Couleur": "Type de résidu"
+        },
+        title="Pays les plus éloignés de la tendance agriculture-forêt",
+        color_discrete_map={
+            "Positif": "forestgreen",
+            "Négatif": "firebrick"
+        }
     )
 
-    ax.axvline(0, color="black", linewidth=1)
+    fig.add_vline(x=0, line_color="black", line_width=1)
 
-    ax.set_title(
-        "Pays les plus éloignés de la tendance agriculture-forêt"
+    fig.update_layout(
+        template="plotly_white"
     )
-
-    ax.set_xlabel("Résidu (points de pourcentage)")
-    ax.set_ylabel("Pays")
-
-    ax.grid(axis="x", linestyle="--", alpha=0.3)
-    fig.tight_layout()
 
     return fig
 
@@ -148,33 +154,37 @@ def plot_forest_distribution(df):
 
     donnees_foret, moyenne_foret, _ = calculer_distribution_foret(df)
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    ax.hist(
-        donnees_foret,
-        bins=10,
-        color="forestgreen",
-        edgecolor="black",
-        alpha=0.8,
-        label="Nombre de pays"
+    fig = px.histogram(
+        x=donnees_foret,
+        nbins=10,
+        labels={
+            "x": "Surface forestière (%)",
+            "count": "Nombre de pays"
+        },
+        title="Distribution de la couverture forestière des pays",
+        color_discrete_sequence=["forestgreen"],
+        opacity=0.8,
     )
 
-    ax.axvline(
-        moyenne_foret,
-        color="darkorange",
-        linestyle="--",
-        linewidth=2.5,
-        label=f"Moyenne : {moyenne_foret:.1f} %"
+    fig.update_traces(
+    marker_line_color="black",
+    marker_line_width=1
+)
+
+    fig.add_vline(
+        x=moyenne_foret,
+        line_color="darkorange",
+        line_dash="dash",
+        line_width=2.5,
+        annotation_text=f"Moyenne : {moyenne_foret:.1f} %",
+        annotation_position="top"
     )
 
-    ax.set_title("Distribution de la couverture forestière des pays")
-    ax.set_xlabel("Surface forestière (%)")
-    ax.set_ylabel("Nombre de pays")
-
-    ax.grid(axis="y", linestyle="--", alpha=0.3)
-    ax.legend()
-
-    fig.tight_layout()
+    fig.update_layout(
+        template="plotly_white",
+        xaxis_title="Surface forestière (%)",
+        yaxis_title="Nombre de pays"
+    )
 
     return fig
 

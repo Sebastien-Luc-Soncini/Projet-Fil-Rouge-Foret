@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.graph_objects as go
 
 
 # --------------------------------------------------
@@ -10,34 +12,28 @@ import matplotlib.pyplot as plt
 def plot_top_10_forest(df):
 
     # Sélection des 10 pays avec la plus grande surface forestière
-    top_10_foret = df.nlargest(10, "Forested Area (%)")
+    top_10_foret = df.nlargest(10, "Forested Area (%)").copy()
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    ax.barh(
-        top_10_foret["Country"],
-        top_10_foret["Forested Area (%)"],
-        color="forestgreen",
-        edgecolor="darkgreen",
-        linewidth=1.2,
-        label="Surface forestière"
+    # Graphique interactif
+    fig = px.bar(
+        top_10_foret,
+        x="Forested Area (%)",
+        y="Country",
+        orientation="h",
+        title="Les 10 pays les plus forestiers",
+        labels={
+            "Forested Area (%)": "Surface forestière (%)",
+            "Country": "Pays"
+        },
+        hover_data={"Forested Area (%)": ":.2f"},
+        color_discrete_sequence=["#228B22"]
     )
 
     # Le pays le plus forestier apparaît en haut
-    ax.invert_yaxis()
-
-    ax.set_title(
-        "Les 10 pays les plus forestiers",
-        fontsize=16,
-        fontweight="bold"
+    fig.update_layout(
+        yaxis={"categoryorder": "total ascending"},
+        template="plotly_white"
     )
-    ax.set_xlabel("Surface forestière (%)", fontsize=12)
-    ax.set_ylabel("Pays", fontsize=12)
-
-    ax.grid(axis="x", linestyle="--", alpha=0.4)
-    ax.legend()
-
-    fig.tight_layout()
 
     return fig
 
@@ -50,57 +46,45 @@ def plot_agriculture_forest(df):
 
     # Sélection des deux variables
     donnees = df[
-        ["Agricultural Land (%)", "Forested Area (%)"]
+        ["Country", "Agricultural Land (%)", "Forested Area (%)"]
     ].dropna()
 
-    # Définition de x et y
+    # Calcul de la droite de régression
     x = donnees["Agricultural Land (%)"]
     y = donnees["Forested Area (%)"]
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Calcul de la droite de régression
     pente, ordonnee_origine = np.polyfit(x, y, 1)
 
-    # Création de 100 points pour tracer la droite
+    # Création des points pour la droite
     x_droite = np.linspace(x.min(), x.max(), 100)
     y_droite = pente * x_droite + ordonnee_origine
 
-    # Nuage de points
-    ax.scatter(
-        x,
-        y,
-        color="seagreen",
-        marker="o",
-        s=60,
-        alpha=0.7,
-        edgecolors="black",
-        linewidths=0.5,
-        label="Pays"
+    # Nuage de points interactif
+    fig = px.scatter(
+        donnees,
+        x="Agricultural Land (%)",
+        y="Forested Area (%)",
+        hover_name="Country",
+        labels={
+            "Agricultural Land (%)": "Terres agricoles (%)",
+            "Forested Area (%)": "Surface forestière (%)"
+        },
+        title="Terres agricoles et couverture forestière",
+        color_discrete_sequence=["#228B22"]
     )
 
-    # Droite de tendance
-    ax.plot(
-        x_droite,
-        y_droite,
-        color="darkred",
-        linestyle="--",
-        linewidth=2,
-        label="Droite de tendance"
+    # Ajout de la droite de tendance
+    fig.add_scatter(
+        x=x_droite,
+        y=y_droite,
+        mode="lines",
+        name="Droite de tendance",
+        line=dict(color="darkred", dash="dash", width=2)
     )
 
-    ax.set_title(
-        "Terres agricoles et couverture forestière",
-        fontsize=15,
-        fontweight="bold"
+    fig.update_layout(
+        template="plotly_white"
     )
-    ax.set_xlabel("Terres agricoles (%)", fontsize=12)
-    ax.set_ylabel("Surface forestière (%)", fontsize=12)
-
-    ax.grid(linestyle="--", alpha=0.3)
-    ax.legend()
-
-    fig.tight_layout()
 
     return fig
 
@@ -122,32 +106,25 @@ def plot_forest_boxplot(df):
         for categorie in categories
     ]
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Création du graphique interactif
+    fig = go.Figure()
 
-    boites = ax.boxplot(
-        donnees_boxplot,
-        tick_labels=categories,
-        patch_artist=True
+    for categorie, donnees in zip(categories, donnees_boxplot):
+        fig.add_trace(
+            go.Box(
+                y=donnees,
+                name=categorie,
+                boxpoints="outliers",
+                marker_color="seagreen"
+            )
+        )
+
+    fig.update_layout(
+        title="Couverture forestière selon la proportion de terres agricoles",
+        xaxis_title="Terres agricoles (%)",
+        yaxis_title="Surface forestière (%)",
+        template="plotly_white"
     )
-
-    # Personnalisation des boîtes
-    for boite in boites["boxes"]:
-        boite.set_facecolor("seagreen")
-        boite.set_edgecolor("black")
-        boite.set_linewidth(1.2)
-
-    ax.set_title(
-        "Couverture forestière selon la proportion de terres agricoles",
-        fontsize=14,
-        fontweight="bold"
-    )
-
-    ax.set_xlabel("Terres agricoles (%)", fontsize=12)
-    ax.set_ylabel("Surface forestière (%)", fontsize=12)
-
-    ax.grid(axis="y", linestyle="--", alpha=0.3)
-
-    fig.tight_layout()
 
     return fig
 
@@ -170,57 +147,23 @@ def plot_correlation_matrix(df):
     # Calcul des corrélations
     correlations = df[variables].corr()
 
-    fig, ax = plt.subplots(figsize=(11, 8))
-
-    image = ax.imshow(
+    fig = px.imshow(
         correlations,
-        cmap="RdYlGn",
-        vmin=-1,
-        vmax=1
+        text_auto=".2f",
+        color_continuous_scale="RdYlGn",
+        zmin=-1,
+        zmax=1,
+        labels={
+            "x": "Variables",
+            "y": "Variables",
+            "color": "Coefficient de corrélation"
+        },
+        title="Matrice de corrélation des variables"
     )
 
-    # Noms des variables sur les axes
-    ax.set_xticks(range(len(variables)))
-    ax.set_xticklabels(
-        variables,
-        rotation=45,
-        ha="right"
+    fig.update_layout(
+        template="plotly_white"
     )
-
-    ax.set_yticks(range(len(variables)))
-    ax.set_yticklabels(variables)
-
-    # Valeurs des corrélations dans chaque case
-    for i in range(len(variables)):
-        for j in range(len(variables)):
-
-            valeur = correlations.iloc[i, j]
-
-            ax.text(
-                j,
-                i,
-                f"{valeur:.2f}",
-                ha="center",
-                va="center",
-                color="black",
-                fontsize=10
-            )
-
-    # Barre de couleurs
-    fig.colorbar(
-        image,
-        ax=ax,
-        label="Coefficient de corrélation"
-    )
-
-    ax.set_title(
-        "Matrice de corrélation des variables",
-        fontsize=15,
-        fontweight="bold",
-        pad=15
-    )
-
-    fig.tight_layout()
 
     return fig
 
@@ -228,31 +171,28 @@ def plot_correlation_matrix(df):
 
 def plot_bottom_10_forest(df):
 
-    bottom_10_foret = df.nsmallest(10, "Forested Area (%)")
+    # Sélection des 10 pays avec la plus faible surface forestière
+    bottom_10_foret = df.nsmallest(10, "Forested Area (%)").copy()
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    ax.barh(
-        bottom_10_foret["Country"],
-        bottom_10_foret["Forested Area (%)"],
-        color="sandybrown",
-        edgecolor="darkorange",
-        linewidth=1.2,
-        label="Surface forestière"
+    # Graphique interactif
+    fig = px.bar(
+        bottom_10_foret,
+        x="Forested Area (%)",
+        y="Country",
+        orientation="h",
+        title="Les 10 pays ayant la plus faible couverture forestière",
+        labels={
+            "Forested Area (%)": "Surface forestière (%)",
+            "Country": "Pays"
+        },
+        hover_data={"Forested Area (%)": ":.2f"},
+        color_discrete_sequence=["#D2A679"]
     )
 
-    ax.set_title(
-        "Les 10 pays ayant la plus faible couverture forestière",
-        fontsize=16,
-        fontweight="bold"
+    # Le pays avec la plus faible couverture apparaît en haut
+    fig.update_layout(
+        yaxis={"categoryorder": "total descending"},
+        template="plotly_white"
     )
-
-    ax.set_xlabel("Surface forestière (%)", fontsize=12)
-    ax.set_ylabel("Pays", fontsize=12)
-
-    ax.grid(axis="x", linestyle="--", alpha=0.4)
-    ax.legend()
-
-    fig.tight_layout()
 
     return fig
