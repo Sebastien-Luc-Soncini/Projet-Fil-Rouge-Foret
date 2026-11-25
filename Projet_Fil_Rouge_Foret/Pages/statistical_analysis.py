@@ -1,7 +1,10 @@
+
 import streamlit as st
 from Controls.data_loader import load_data
 from Models.analysis import analyse_statistique
+from Models.advanced_analysis import calculer_distribution_foret
 from Views.visualizations import plot_top_10_forest, plot_bottom_10_forest
+from Views.advanced_visualizations import plot_forest_distribution
 
 st.title("Analyse statistique")
 
@@ -20,6 +23,9 @@ col2.metric("Médiane", f"{statistiques['50%']:.2f} %")
 col3.metric("Écart-type", f"{statistiques['std']:.2f}")
 col4.metric("Maximum", f"{statistiques['max']:.2f} %")
 
+with st.expander("Consulter les statistiques détaillées du dataset"):
+    st.dataframe(resultats["statistiques_generales"])
+
 st.subheader("Les 10 pays ayant la plus forte couverture forestière")
 
 st.write(resultats["top_10_foret"])
@@ -32,4 +38,11 @@ st.subheader("Les 10 pays ayant la plus faible couverture forestière")
 st.write(resultats["bottom_10_foret"])
 
 fig = plot_bottom_10_forest(df)
+st.plotly_chart(fig, use_container_width=True)
+
+st.subheader("Distribution de la couverture forestière")
+
+distribution = calculer_distribution_foret(df)
+
+fig = plot_forest_distribution(df)
 st.plotly_chart(fig, use_container_width=True)

@@ -97,7 +97,6 @@ def plot_forest_boxplot(df):
 
     categories = ["0-20", "20-40", "40-60", "60-80", ">80"]
 
-    # Sélection des données pour chaque catégorie
     donnees_boxplot = [
         df.loc[
             df["Agriculture_categorie"] == categorie,
@@ -106,24 +105,65 @@ def plot_forest_boxplot(df):
         for categorie in categories
     ]
 
-    # Création du graphique interactif
     fig = go.Figure()
 
     for categorie, donnees in zip(categories, donnees_boxplot):
+
+        mediane = donnees.median()
+
+        # Boxplot avec position X explicite
         fig.add_trace(
             go.Box(
+                x=[categorie] * len(donnees),
                 y=donnees,
-                name=categorie,
+                name=f"{categorie} (n={len(donnees)})",
                 boxpoints="outliers",
-                marker_color="seagreen"
+                marker_color="seagreen",
+                line_color="seagreen",
+                fillcolor="rgba(46, 139, 87, 0.5)"
             )
+        )
+
+        # Ligne de médiane noire
+        fig.add_shape(
+            type="line",
+            x0=categorie,
+            x1=categorie,
+            y0=mediane,
+            y1=mediane,
+            xref="x",
+            yref="y",
+            line=dict(
+                color="black",
+                width=4
+            )
+        )
+
+        # Valeur de la médiane en noir
+        fig.add_annotation(
+            x=categorie,
+            y=mediane,
+            text=f"{mediane:.0f}",
+            showarrow=False,
+            font=dict(
+                color="black",
+                size=14
+            ),
+            yshift=12
         )
 
     fig.update_layout(
         title="Couverture forestière selon la proportion de terres agricoles",
         xaxis_title="Terres agricoles (%)",
         yaxis_title="Surface forestière (%)",
-        template="plotly_white"
+        template="plotly_white",
+        legend=dict(
+            title="Valeurs en noir : médianes"
+        ),
+        xaxis=dict(
+            categoryorder="array",
+            categoryarray=categories
+        )
     )
 
     return fig

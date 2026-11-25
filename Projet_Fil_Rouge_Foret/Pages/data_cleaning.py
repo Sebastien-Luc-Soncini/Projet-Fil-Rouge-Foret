@@ -1,14 +1,13 @@
 
 import streamlit as st
-import pandas as pd
 from pathlib import Path
+from Controls.data_loader import load_raw_data
 from Models.cleaning import clean_data
 
 st.title("Nettoyage des données")
 st.subheader("Exploration des données brutes")
 
-DATA_PATH = Path(__file__).parent.parent / "Data" / "foret.csv"
-df = pd.read_csv(DATA_PATH)
+df = load_raw_data()
 
 st.write("Aperçu des données brutes avant nettoyage :")
 
@@ -26,6 +25,7 @@ if st.button("Lancer le nettoyage"):
     df_clean.to_csv(DATA_CLEAN_PATH, index=False)
 
     st.success("Nettoyage des données terminé !")
+    st.info("Fichier foret_clean.csv généré.")
 
     col1, col2, col3, col4, col5 = st.columns(5)
 

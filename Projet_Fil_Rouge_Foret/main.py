@@ -13,24 +13,36 @@ home_page = st.Page(
     default=True
 )
 
-statistical_page = st.Page(
-    "Pages/statistical_analysis.py",
-    title="Analyse statistique",
-    icon=":material/analytics:"
-)
-
 data_cleaning_page = st.Page(
     "Pages/data_cleaning.py",
     title="Nettoyage des données",
     icon=":material/database:"
 )
 
+statistical_page = st.Page(
+    "Pages/statistical_analysis.py",
+    title="Analyse statistique",
+    icon=":material/analytics:"
+)
+
 exploration_page = st.Page(
     "Pages/exploration.py",
-    title="Exploration des données",
+    title="Analyse exploratoire",
     icon=":material/travel_explore:"
 )
 
-navigation = st.navigation([home_page, data_cleaning_page, statistical_page, exploration_page])
+world_map_page = st.Page(
+    "Pages/world_map.py",
+    title="Carte mondiale",
+    icon=":material/public:"
+)
+
+navigation = st.navigation([
+    home_page,
+    data_cleaning_page,
+    statistical_page,
+    exploration_page,
+    world_map_page
+])
 
 navigation.run()
