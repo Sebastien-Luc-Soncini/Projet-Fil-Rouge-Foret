@@ -31,6 +31,12 @@ exploration_page = st.Page(
     icon=":material/travel_explore:"
 )
 
+sql_page = st.Page(
+    "Pages/sql_analysis.py",
+    title="Analyse SQL",
+    icon=":material/query_stats:"
+)
+
 world_map_page = st.Page(
     "Pages/world_map.py",
     title="Carte mondiale",
@@ -42,6 +48,7 @@ navigation = st.navigation([
     data_cleaning_page,
     statistical_page,
     exploration_page,
+    sql_page,
     world_map_page
 ])
 
